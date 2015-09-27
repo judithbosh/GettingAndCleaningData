@@ -1,6 +1,6 @@
 
 ## step 1
-# read all the data
+# read files  into varables.
 test.labels <- read.table("UCI HAR Dataset/test/y_test.txt", col.names="label")
 test.subjects <- read.table("UCI HAR Dataset/test/subject_test.txt", col.names="subject")
 test.data <- read.table("UCI HAR Dataset/test/X_test.txt")
@@ -8,22 +8,23 @@ train.labels <- read.table("UCI HAR Dataset/train/y_train.txt", col.names="label
 train.subjects <- read.table("UCI HAR Dataset/train/subject_train.txt", col.names="subject")
 train.data <- read.table("UCI HAR Dataset/train/X_train.txt")
 
-# put it together in the format of: subjects, labels, everything else
+# bind  the files using rbind
 data <- rbind(cbind(test.subjects, test.labels, test.data),
               cbind(train.subjects, train.labels, train.data))
 
 ## step 2
-# read the features
+# read the features into a features variable
 features <- read.table("UCI HAR Dataset/features.txt", strip.white=TRUE, stringsAsFactors=FALSE)
 # only retain features of mean and standard deviation
 features.mean.std <- features[grep("mean\\(\\)|std\\(\\)", features$V2), ]
 
 # select only the means and standard deviations from data
-# increment by 2 because data has subjects and labels in the beginning
+# increment by 2 because data has subjects and labels in the beginning which should accupy the first  
+# two  places
 data.mean.std <- data[, c(1, 2, features.mean.std$V1+2)]
 
 ## step 3
-# read the labels (activities)
+# read the labels 
 labels <- read.table("UCI HAR Dataset/activity_labels.txt", stringsAsFactors=FALSE)
 # replace labels in data with label names
 data.mean.std$label <- labels[data.mean.std$label, 2]
@@ -44,7 +45,7 @@ aggr.data <- aggregate(data.mean.std[, 3:ncol(data.mean.std)],
                                label = data.mean.std$label),
                        mean)
 
-## step nothing
+## tidying up
 # write the data for course upload
 write.table(format(aggr.data, scientific=T), "UCI HAR Dataset/tidydata.txt",
             row.names=F, col.names=F, quote=2)
